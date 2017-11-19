@@ -38,10 +38,10 @@ WORKDIR /home/theia
 RUN rm -rf /opt/yarn && rm -f /usr/local/bin/yarn && rm -f /usr/local/bin/yarnpkg
 RUN apt-get update && apt-get install -y npm && npm install -g yarn@1.3.2
 USER theia
-RUN git clone --depth 1 https://github.com/theia-ide/theia && \
+RUN git clone --depth 1 https://github.com/dcarroll/theia && \
     cd theia && \
     yarn
-EXPOSE 3000
+EXPOSE 5000
 WORKDIR /home/theia/theia/examples/browser
 ENV SHELL /bin/bash
-CMD yarn run start --hostname 0.0.0.0
+CMD yarn run start
