@@ -6,52 +6,69 @@
  */
 // tslint:disable:no-console
 
-import * as cluster from 'cluster';
-import { RemoteServer, createRemoteServer } from './cluster-protocol';
+import * as cluster from "cluster";
+import { RemoteServer, createRemoteServer } from "./cluster-protocol";
 
 export class ServerWorker {
+  protected readonly worker: cluster.Worker;
 
-    protected readonly worker: cluster.Worker;
+  readonly server: RemoteServer;
+  readonly online: Promise<void>;
+  readonly failed: Promise<Error>;
+  readonly listening: Promise<cluster.Address>;
+  readonly initialized: Promise<void>;
+  readonly disconnect: Promise<void>;
+  readonly exit: Promise<string>;
 
-    readonly server: RemoteServer;
-    readonly online: Promise<void>;
-    readonly failed: Promise<Error>;
-    readonly listening: Promise<cluster.Address>;
-    readonly initialized: Promise<void>;
-    readonly disconnect: Promise<void>;
-    readonly exit: Promise<string>;
+  constructor(restart: () => Promise<void>) {
+    let onDidInitialize: () => void = () => {};
+    this.initialized = new Promise<void>(
+      resolve => (onDidInitialize = resolve)
+    );
 
-    constructor(restart: () => Promise<void>) {
-        let onDidInitialize: () => void = () => { };
-        this.initialized = new Promise<void>(resolve => onDidInitialize = resolve);
+    console.log("Starting server worker...");
+    this.worker = cluster.fork();
+    this.server = createRemoteServer(this.worker, { onDidInitialize, restart });
 
-        console.log('Starting server worker...');
-        this.worker = cluster.fork();
-        this.server = createRemoteServer(this.worker, { onDidInitialize, restart });
+    this.online = new Promise(resolve => this.worker.once("online", resolve));
+    this.failed = new Promise(resolve => this.worker.once("error", resolve));
+    this.listening = new Promise(resolve =>
+      this.worker.once("listening", resolve)
+    );
+    this.disconnect = new Promise(resolve =>
+      this.worker.once("disconnect", resolve)
+    );
+    this.exit = new Promise(resolve => this.worker.once("exit", resolve));
 
-        this.online = new Promise(resolve => this.worker.once('online', resolve));
-        this.failed = new Promise(resolve => this.worker.once('error', resolve));
-        this.listening = new Promise(resolve => this.worker.once('listening', resolve));
-        this.disconnect = new Promise(resolve => this.worker.once('disconnect', resolve));
-        this.exit = new Promise(resolve => this.worker.once('exit', resolve));
+    const workerIdentifier = `[ID: ${this.worker.id} | PID: ${this.worker
+      .process.pid}]`;
+    this.online.then(() =>
+      console.log(`Server worker has been started. ${workerIdentifier}`)
+    );
+    this.failed.then(error =>
+      console.error(`Server worker failed. ${workerIdentifier}`, error)
+    );
+    this.initialized.then(() => {
+      console.log(
+        `Server worker is ready to accept messages. ${workerIdentifier}`
+      );
+    });
+    this.disconnect.then(() =>
+      console.log(`Server worker has been disconnected. ${workerIdentifier}`)
+    );
+    this.exit.then(() =>
+      console.log(`Server worker has been stopped. ${workerIdentifier}`)
+    );
+  }
 
-        const workerIdentifier = `[ID: ${this.worker.id} | PID: ${this.worker.process.pid}]`;
-        this.online.then(() => console.log(`Server worker has been started. ${workerIdentifier}`));
-        this.failed.then(error => console.error(`Server worker failed. ${workerIdentifier}`, error));
-        this.initialized.then(() => console.log(`Server worker is ready to accept messages. ${workerIdentifier}`));
-        this.disconnect.then(() => console.log(`Server worker has been disconnected. ${workerIdentifier}`));
-        this.exit.then(() => console.log(`Server worker has been stopped. ${workerIdentifier}`));
+  async stop(): Promise<void> {
+    if (this.worker.isConnected) {
+      this.worker.disconnect();
+      await this.disconnect;
     }
-
-    async stop(): Promise<void> {
-        if (this.worker.isConnected) {
-            this.worker.disconnect();
-            await this.disconnect;
-        }
-        if (!this.worker.isDead) {
-            this.worker.kill();
-            await this.exit;
-        }
+    if (!this.worker.isDead) {
+      this.worker.kill();
+      await this.exit;
     }
-
+  }
 }

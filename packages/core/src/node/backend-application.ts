@@ -111,10 +111,12 @@ export class BackendApplication {
     } else {
       herokuPort = parseInt(process.env.PORT);
     }
+    console.log("Listening on port " + herokuPort);
     const port = aPort !== undefined ? aPort : herokuPort;
     const hostname =
       aHostname !== undefined ? aHostname : this.cliParams.hostname;
-    server = this.app.listen(port, hostname!, () => {
+    this.logger.info("Listening on host: " + hostname);
+    server = this.app.listen(process.env.PORT, "0.0.0.0"!, () => {
       this.logger.info(
         `Theia app listening on http://${hostname ||
           "localhost"}:${server.address().port}.`
