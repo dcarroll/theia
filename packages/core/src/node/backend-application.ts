@@ -24,7 +24,7 @@ export interface BackendApplicationContribution {
 }
 
 const defaultPort = BackendProcess.electron ? 0 : 5000;
-const defaultHost = "localhost";
+const defaultHost = "0.0.0.0";
 
 @injectable()
 export class BackendApplicationCliContribution implements CliContribution {
@@ -118,7 +118,7 @@ export class BackendApplication {
     server = this.app.listen(herokuPort, "0.0.0.0"!, () => {
       this.logger.info(
         `Theia app listening on http://${hostname ||
-          "localhost"}:${server.address().port}.`
+          "0.0.0.0"}:${server.address().port}.`
       );
       this.logger.info("The env port is: ${process.env.PORT}");
       deferred.resolve(server);

@@ -54,7 +54,7 @@ export class Endpoint {
     if (this.location.host) {
       return this.location.host;
     }
-    return "localhost" + ":" + this.port;
+    return "0.0.0..0" + ":" + this.port;
   }
 
   protected get port(): string {

@@ -37,8 +37,7 @@ describe("Terminal Backend Contribution", function() {
     const terminalId = await shellTerminalServer.create({});
     const p = new Promise((resolve, reject) => {
       const socket = new ws(
-        `ws://localhost:${server.address()
-          .port}/services/terminals/${terminalId}`
+        `ws://0.0.0.0:${server.address().port}/services/terminals/${terminalId}`
       );
       socket.on("message", msg => {
         resolve();

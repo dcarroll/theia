@@ -203,7 +203,7 @@ The endpoints with `services/*` path are served by the webpack dev server, see `
 
 ``` javascript
     '/services/*': {
-        target: 'ws://localhost:3000',
+        target: 'ws://0.0.0.0:3000',
         ws: true
     },
 ```
