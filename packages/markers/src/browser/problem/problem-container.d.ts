@@ -1,0 +1,8 @@
+import { interfaces, Container } from "inversify";
+import { MarkerOptions } from '../marker-tree';
+import { ProblemWidget } from './problem-widget';
+import { TreeProps } from "@theia/core/lib/browser";
+export declare const PROBLEM_TREE_PROPS: TreeProps;
+export declare const PROBLEM_OPTIONS: MarkerOptions;
+export declare function createProblemTreeContainer(parent: interfaces.Container): Container;
+export declare function createProblemWidget(parent: interfaces.Container): ProblemWidget;

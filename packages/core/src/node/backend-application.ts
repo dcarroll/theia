@@ -105,22 +105,23 @@ export class BackendApplication {
   async start(aPort?: number, aHostname?: string): Promise<http.Server> {
     const deferred = new Deferred<http.Server>();
     let server: http.Server;
-    let herokuPort = 0;
-    if (process.env.Port === undefined) {
+    let herokuPort: number;
+    if (process.env.PORT === undefined) {
       herokuPort = this.cliParams.port;
     } else {
-      herokuPort = parseInt(process.env.PORT);
+      herokuPort = <number>(<any>process.env.PORT);
     }
     console.log("Listening on port " + herokuPort);
-    const port = aPort !== undefined ? aPort : herokuPort;
+    // const port = aPort !== undefined ? aPort : herokuPort;
     const hostname =
       aHostname !== undefined ? aHostname : this.cliParams.hostname;
     this.logger.info("Listening on host: " + hostname);
-    server = this.app.listen(process.env.PORT, "0.0.0.0"!, () => {
+    server = this.app.listen(herokuPort, "0.0.0.0"!, () => {
       this.logger.info(
         `Theia app listening on http://${hostname ||
           "localhost"}:${server.address().port}.`
       );
+      this.logger.info("The env port is: ${process.env.PORT}");
       deferred.resolve(server);
     });
 

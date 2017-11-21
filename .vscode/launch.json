@@ -50,7 +50,8 @@
         "--no-app-auto-install"
       ],
       "env": {
-        "NODE_ENV": "development"
+        "NODE_ENV": "development",
+        "PORT": "3456"
       },
       "sourceMaps": true,
       "outFiles": [

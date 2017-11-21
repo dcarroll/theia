@@ -1,0 +1,37 @@
+import { DisposableCollection } from '@theia/core';
+import { ExtensionPackage } from '@theia/application-package';
+import { RawExtension, ResolvedRawExtension, ResolvedExtension, Extension, ExtensionServer, ExtensionClient, SearchParam, ExtensionChange } from '../common/extension-protocol';
+import { ApplicationProject } from './application-project';
+export declare type ExtensionKeywords = string[];
+export declare const ExtensionKeywords: symbol;
+export declare class NodeExtensionServer implements ExtensionServer {
+    protected readonly project: ApplicationProject;
+    protected readonly extensionKeywords: ExtensionKeywords;
+    protected client: ExtensionClient | undefined;
+    protected readonly toDispose: DisposableCollection;
+    protected readonly busyExtensions: Set<string>;
+    constructor(project: ApplicationProject, extensionKeywords: ExtensionKeywords);
+    dispose(): void;
+    setClient(client: ExtensionClient | undefined): void;
+    protected notification<T extends keyof ExtensionClient>(notification: T): ExtensionClient[T];
+    search(param: SearchParam): Promise<RawExtension[]>;
+    protected prepareQuery(query: string): string;
+    resolveRaw(extension: string): Promise<ResolvedRawExtension>;
+    installed(): Promise<RawExtension[]>;
+    install(extension: string): Promise<void>;
+    uninstall(extension: string): Promise<void>;
+    outdated(): Promise<RawExtension[]>;
+    update(extension: string): Promise<void>;
+    list(param?: SearchParam): Promise<Extension[]>;
+    resolve(extension: string): Promise<ResolvedExtension>;
+    protected toResolvedExtension(extensionPackage: ExtensionPackage): Promise<ResolvedExtension>;
+    protected toResolvedRawExtension(extensionPackage: ExtensionPackage): Promise<ResolvedRawExtension>;
+    protected compileDocumentation(extensionPackage: ExtensionPackage): Promise<string>;
+    protected toExtension(extensionPackage: ExtensionPackage): Promise<Extension>;
+    protected withExtensionPackage<T extends RawExtension>(raw: T, extensionPackage: ExtensionPackage): Promise<T & Extension>;
+    protected toRawExtension(extensionPackage: ExtensionPackage): RawExtension;
+    protected isBusy(extension: string): boolean;
+    protected setBusy(extension: string, busy: boolean): void;
+    protected notifyDidChange(change: ExtensionChange): void;
+    scheduleInstall(): Promise<void>;
+}
