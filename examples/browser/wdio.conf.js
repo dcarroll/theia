@@ -3,7 +3,7 @@ const http = require('http');
 const path = require('path');
 
 const port = process.env.PORT || 5000;
-const host = 'theia-dave.herokuapp.com';
+const host = 'localhost';
 
 let server;
 
