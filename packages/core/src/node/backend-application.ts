@@ -105,7 +105,13 @@ export class BackendApplication {
   async start(aPort?: number, aHostname?: string): Promise<http.Server> {
     const deferred = new Deferred<http.Server>();
     let server: http.Server;
-    const port = aPort !== undefined ? aPort : this.cliParams.port;
+    let herokuPort = 0;
+    if (process.env.Port === undefined) {
+      herokuPort = this.cliParams.port;
+    } else {
+      herokuPort = parseInt(process.env.PORT);
+    }
+    const port = aPort !== undefined ? aPort : herokuPort;
     const hostname =
       aHostname !== undefined ? aHostname : this.cliParams.hostname;
     server = this.app.listen(port, hostname!, () => {
