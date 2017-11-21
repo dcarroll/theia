@@ -111,7 +111,6 @@ export class BackendApplication {
     } else {
       herokuPort = <number>(<any>process.env.PORT);
     }
-    console.log("Listening on port " + herokuPort);
     // const port = aPort !== undefined ? aPort : herokuPort;
     const hostname =
       aHostname !== undefined ? aHostname : this.cliParams.hostname;
