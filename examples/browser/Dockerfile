@@ -40,6 +40,7 @@ RUN apt-get update && apt-get install -y npm && npm install -g yarn@1.3.2
 USER theia
 RUN git clone --depth 1 https://github.com/dcarroll/theia && \
     cd theia && \
+    yarn run rebuild:browser && \
     yarn
 EXPOSE 5000
 WORKDIR /home/theia/theia/examples/browser
